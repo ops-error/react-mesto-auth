@@ -1,0 +1,13 @@
+.header{
+    margin: 45px auto 0;
+    max-width: 880px;
+    /*  #545454 === rgba(84, 84, 84, .7) */
+    border-bottom: 1px solid rgba(84, 84, 84, .7); 
+}
+
+@media screen and (max-width: 768px) {
+    .header{
+        margin-top: 28px;
+        max-width: 100%;
+    }
+}
