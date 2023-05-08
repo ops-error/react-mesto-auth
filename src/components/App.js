@@ -1,5 +1,6 @@
 import React from 'react';
-import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import api from '../utils/Api';
 import Header from './Header';
 import Main from './Main';
@@ -12,6 +13,9 @@ import EditAvatarPopup from './EditAvatarPopup';
 import AddPlacePopup from './AddPlacePopup';
 import Register from './Register';
 import Login from './Login';
+import ProtectedRouteElement from './ProtectedRoute';
+import InfoTooltip from './InfoTooltip';
+import authApi from '../utils/authApi';
 
 
 function App() {
@@ -23,7 +27,82 @@ function App() {
     const [currentUser, setCurrentUser] = React.useState({});
     const [cards, setCards] = React.useState([]);
     const [isLoading, setIsLoading] = React.useState(false);
-    const [isloggedIn, setIsLoggedIn] = React.useState(true);
+    const [isloggedIn, setIsLoggedIn] = React.useState(false);
+
+    const [email, setEmail] = React.useState('');
+
+    const [isTooltip, setIsTooltip] = React.useState(false);
+    const [isSuccess, setIsSuccess] = React.useState(false);
+
+    const navigate = useNavigate();
+
+    // регистрация
+    function handleSubmitDataRegister({email, password}) {
+        console.log({email, password});
+        authApi.signup({email, password})
+        .then((res) => {
+            setIsSuccess(true);
+            handleOpenTooltip();
+            navigate('/sign-in', {replace: true});
+        })
+        .catch((res) => {
+            console.log(res);
+            setIsSuccess(false);
+            handleOpenTooltip();
+        });
+    }
+
+    // авторизация
+    function handleSubmitDataLogin({email, password}) {
+        console.log({email, password});
+        authApi.signin({email, password})
+        .then((res) => {
+            console.log(res);
+            if (res.token) {
+                handleLogin();
+                setEmail(email);
+                localStorage.setItem('token', res.token);
+                console.log(email);
+                navigate('/', {replace: true});
+            }
+        })
+        .catch((res) => {
+            console.log(res);
+            setIsSuccess(false);
+            handleOpenTooltip();
+        })
+    }
+
+    // проверка токена
+    function handleCheckToken() {
+        if (localStorage.getItem('token')) {
+            const jwt = localStorage.getItem('token');
+            authApi.checkToken(jwt)
+            .then((res) => {
+                if (res) {
+                    console.log(res);
+                    setIsLoggedIn(true);
+                    setEmail(res.data.email);
+                    navigate('/', {replace: true});
+                }
+            })
+            .catch((res) => {
+                console.log(res);
+                setIsSuccess(false);
+                handleOpenTooltip();
+                navigate('/sign-in', {replace: true});
+            });
+        }
+    }
+
+    React.useEffect(() => {
+        handleCheckToken();
+    }, []);
+
+    function signOut() {
+        setEmail('');
+        localStorage.removeItem('token');
+    }
 
     // получение карточек с сервера
     React.useEffect(() => {
@@ -83,6 +162,10 @@ function App() {
         setPlaceOpen(true);
     }
 
+    function handleOpenTooltip() {
+        setIsTooltip(true);
+    }
+
     // закрытие попапов
     function closeAllPopups() {
         setAvatarOpen(false);
@@ -90,6 +173,7 @@ function App() {
         setPlaceOpen(false);
         setDeleteOpen(false);
         setSelectedCard(null);
+        setIsTooltip(false);
     }
 
     function closePopupButton(evt) {
@@ -164,16 +248,20 @@ function App() {
         });
     }
 
+    function handleLogin() {
+        setIsLoggedIn(true);
+    }
+
   return (
-    <BrowserRouter>
         <CurrentUserContext.Provider value={currentUser}>
             <div className="page__content">
-                <Header />
+                <Header email={email} signOut={signOut} />
                 <Routes>
-                    <Route path='/' element={isloggedIn? <Main onEditProfile={handleEditProfileClick} onAddPlace={handleAddPlaceClick} onEditAvatar={handleEditAvatarClick} onCardClick={setSelectedCard} cards={cards} onCardLike={handleCardLike} onCardDelete={handleCardDelete} /> : <Navigate to='sign-in' replace />} />
-                    <Route path='/sign-up' element={<Register />} />
-                    <Route path='/sign-in' element={<Login />} />
+                    <Route path='/*' element={<ProtectedRouteElement element={Main} onEditProfile={handleEditProfileClick} onAddPlace={handleAddPlaceClick} onEditAvatar={handleEditAvatarClick} onCardClick={setSelectedCard} cards={cards} onCardLike={handleCardLike} onCardDelete={handleCardDelete} loggedIn={isloggedIn} />} />
+                    <Route path='/sign-up' element={<Register onSubmit={handleSubmitDataRegister} />} />
+                    <Route path='/sign-in' element={<Login onSubmit={handleSubmitDataLogin} />} />
                 </Routes>
+                <InfoTooltip isSuccess={isSuccess} isOpen={isTooltip} onClose={closePopupButton} />
                 <Footer />
 
                 {/*Редактировать профиль  */}
@@ -193,7 +281,6 @@ function App() {
             </div>
             
         </CurrentUserContext.Provider>
-    </BrowserRouter>
   );
 }
 
