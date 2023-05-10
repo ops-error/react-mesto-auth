@@ -4,7 +4,7 @@ import { Navigate } from "react-router-dom";
 const ProtectedRouteElement = ({element: Component, ...props}) => {
   console.log(props.loggedIn);
   return (
-    props.loggedIn ? <Component {...props} /> : <Navigate to="/sign-in" replace/>
+    props.loggedIn ? <Component {...props} /> : <Navigate to="react-mesto-auth/sign-in" replace/>
 )};
 
 export default ProtectedRouteElement;

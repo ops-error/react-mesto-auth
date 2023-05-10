@@ -257,9 +257,9 @@ function App() {
             <div className="page__content">
                 <Header email={email} signOut={signOut} />
                 <Routes>
-                    <Route path='/*' element={<ProtectedRouteElement element={Main} onEditProfile={handleEditProfileClick} onAddPlace={handleAddPlaceClick} onEditAvatar={handleEditAvatarClick} onCardClick={setSelectedCard} cards={cards} onCardLike={handleCardLike} onCardDelete={handleCardDelete} loggedIn={isloggedIn} />} />
-                    <Route path='/sign-up' element={<Register onSubmit={handleSubmitDataRegister} />} />
-                    <Route path='/sign-in' element={<Login onSubmit={handleSubmitDataLogin} />} />
+                    <Route path='react-mesto-auth/*' element={<ProtectedRouteElement element={Main} onEditProfile={handleEditProfileClick} onAddPlace={handleAddPlaceClick} onEditAvatar={handleEditAvatarClick} onCardClick={setSelectedCard} cards={cards} onCardLike={handleCardLike} onCardDelete={handleCardDelete} loggedIn={isloggedIn} />} />
+                    <Route path='react-mesto-auth/sign-up' element={<Register onSubmit={handleSubmitDataRegister} />} />
+                    <Route path='react-mesto-auth/sign-in' element={<Login onSubmit={handleSubmitDataLogin} />} />
                 </Routes>
                 <InfoTooltip isSuccess={isSuccess} isOpen={isTooltip} onClose={closePopupButton} />
                 <Footer />
