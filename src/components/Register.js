@@ -33,7 +33,7 @@ function Register({onSubmit}) {
                     <input type="email" name="email" className="form-set__input" value={formValue.email} required placeholder="Email" onChange={handleChange}></input>
                     <input type="password" name="password" className="form-set__input" value={formValue.password} required placeholder="Пароль" onChange={handleChange}></input>
                     <button className="form-set__submit">Зарегестрироваться</button>
-                    <p className="form-set__description">Уже зарегистрированы? {<Link to='react-mesto-auth/sign-in' className="form-set__description_type_link">Войти</Link>}</p>
+                    <p className="form-set__description">Уже зарегистрированы? {<Link to='/sign-in' className="form-set__description_type_link">Войти</Link>}</p>
                 </form>
             </div>
         </section>
