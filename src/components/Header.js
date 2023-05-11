@@ -1,5 +1,5 @@
 import logo from '../images/logo.svg';
-import { useLocation, Link } from 'react-router-dom';
+import { useLocation, Link, Route, Routes } from 'react-router-dom';
 import {useState} from 'react';
 import buttonMenuOpen from '../images/button-menu.svg';
 import buttonMenuClose from '../images/close-icon.svg';
@@ -24,7 +24,7 @@ function Header (props) {
             setIsOpenMenu(!isOpenMenu);
         }
         props.signOut();
-    } 
+    }
 
     return(
         <header className="header">
@@ -36,12 +36,14 @@ function Header (props) {
             
             <div className='header__container'>
             <img src={logo} alt="Логотип" className="header__logo" />
-            {location.pathname === '/sign-in'? <Link to='/sign-up' className='header__link'>Регистрация</Link> : <></>}
-            {location.pathname === '/sign-up'? <Link to='/sign-in' className='header__link'>Войти</Link> : <></>}
-            {location.pathname === '/'? 
-            <button className='header__button' onClick={handleClickMenu}>
-                <img alt="Меню" src={imgButtonMenu} style={{width: '100%'}} />
-            </button> : <></>}
+            <Routes>
+                <Route path='/sign-in' element={<Link to='/sign-up' className='header__link'>Регистрация</Link>} />
+                <Route path='/sign-up' element={<Link to='/sign-in' className='header__link'>Войти</Link>} />
+                <Route path='/' element={
+                <button className='header__button' onClick={handleClickMenu}>
+                    <img alt="Меню" src={imgButtonMenu} style={{width: '100%'}} />
+                </button>} />
+            </Routes>
 
             {(location.pathname === '/') && 
             <div className='header__menu-full'>

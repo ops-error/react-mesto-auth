@@ -11,7 +11,6 @@ function AddPlacePopup(props) {
 
     function handleChangeLink(e) {
         setLink(e.target.value);
-        console.log(e.target.value)
     }
 
     function handleSubmit(e) {

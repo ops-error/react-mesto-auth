@@ -32,55 +32,62 @@ function App() {
     const [email, setEmail] = React.useState('');
 
     const [isTooltip, setIsTooltip] = React.useState(false);
-    const [isSuccess, setIsSuccess] = React.useState(false);
+    const [messageTooltip, setMessageTooltip] = React.useState({
+        success: false,
+        text: ''
+    });
 
     const navigate = useNavigate();
 
     // регистрация
     function handleSubmitDataRegister({email, password}) {
-        console.log({email, password});
         authApi.signup({email, password})
         .then((res) => {
-            setIsSuccess(true);
+            setMessageTooltip({
+                success: true,
+                text: 'Вы успешно зарегистрировались!'
+            });
             handleOpenTooltip();
             navigate('/sign-in', {replace: true});
         })
         .catch((res) => {
             console.log(res);
-            setIsSuccess(false);
+            setMessageTooltip({
+                success: false,
+                text: 'Что-то пошло не так! Попробуйте ещё раз.'
+            });
             handleOpenTooltip();
         });
     }
 
     // авторизация
     function handleSubmitDataLogin({email, password}) {
-        console.log({email, password});
         authApi.signin({email, password})
         .then((res) => {
-            console.log(res);
             if (res.token) {
                 handleLogin();
                 setEmail(email);
                 localStorage.setItem('token', res.token);
-                console.log(email);
                 navigate('/', {replace: true});
             }
         })
         .catch((res) => {
             console.log(res);
-            setIsSuccess(false);
+            setMessageTooltip({
+                success: false,
+                text: 'Что-то пошло не так! Попробуйте ещё раз.'
+            });
             handleOpenTooltip();
         })
     }
 
     // проверка токена
     function handleCheckToken() {
-        if (localStorage.getItem('token')) {
-            const jwt = localStorage.getItem('token');
+        const jwt = localStorage.getItem('token');
+        if (jwt) {
             authApi.checkToken(jwt)
             .then((res) => {
-                if (res) {
-                    console.log(res);
+                if (res) {  
                     setIsLoggedIn(true);
                     setEmail(res.data.email);
                     navigate('/', {replace: true});
@@ -88,7 +95,10 @@ function App() {
             })
             .catch((res) => {
                 console.log(res);
-                setIsSuccess(false);
+                setMessageTooltip({
+                    success: false,
+                    text: 'Что-то пошло не так! Попробуйте ещё раз.'
+                });
                 handleOpenTooltip();
                 navigate('/sign-in', {replace: true});
             });
@@ -104,27 +114,26 @@ function App() {
         localStorage.removeItem('token');
     }
 
-    // получение карточек с сервера
+    // получение карточек и данных пользователя с сервера
     React.useEffect(() => {
-        api.getCard()
-        .then((res) => {
-            setCards(res);
-        })
-        .catch((res) => {
-            console.log(res);
-        });
-    }, []);
+        if (isloggedIn) {
+            api.getCard()
+            .then((res) => {
+                setCards(res);
+            })
+            .catch((res) => {
+                console.log(res);
+            });
 
-    // получение данных пользователя с сервера
-    React.useEffect(() => {
-        api.getInfo()
-        .then((res) => {
-            setCurrentUser(res);
-        })
-        .catch((res) => {
-            console.log(res);
-        })
-    }, []);
+            api.getInfo()
+            .then((res) => {
+                setCurrentUser(res);
+            })
+            .catch((res) => {
+                console.log(res);
+            })
+        }
+    }, [isloggedIn]);
 
     // поставить/убрать лайк
     function handleCardLike(card) {
@@ -204,7 +213,6 @@ function App() {
         setIsLoading(true);
         api.patchInfo(data)
         .then((res) => {
-            console.log(res);
             setCurrentUser(res);
             closeAllPopups();
         })
@@ -261,7 +269,7 @@ function App() {
                     <Route path='/sign-up' element={<Register onSubmit={handleSubmitDataRegister} />} />
                     <Route path='/sign-in' element={<Login onSubmit={handleSubmitDataLogin} />} />
                 </Routes>
-                <InfoTooltip isSuccess={isSuccess} isOpen={isTooltip} onClose={closePopupButton} />
+                <InfoTooltip messageTooltip={messageTooltip} isOpen={isTooltip} onClose={closePopupButton} />
                 <Footer />
 
                 {/*Редактировать профиль  */}
