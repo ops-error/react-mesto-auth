@@ -23,4 +23,4 @@
 
 **Github Pages**
 
-https://opserror.github.io/react-mesto-auth/
+https://ops-error.github.io/react-mesto-auth/
